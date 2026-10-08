@@ -1,0 +1,21 @@
+name: Eleven checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  structure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify pinned upstream
+        run: |
+          grep -q "Release: v3.9.0" docs/UPSTREAM.md
+          grep -q "Commit: 3cd4bf5" docs/UPSTREAM.md
+      - name: Verify Eleven layer
+        run: |
+          test -f internal/eleven/identity/model.go
+          test -f internal/eleven/service/model.go
+          test -f internal/eleven/nodes/model.go
+          test -f internal/eleven/audit/event.go
