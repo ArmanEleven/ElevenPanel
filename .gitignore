@@ -1,31 +1,45 @@
-# OS
+# Ignore editor and IDE settings
+.idea/
+.vscode/
+.cursor/
+.specify/
+.claude/
+.cache/
+.sync*
+
+# Ignore log files
+*.log
+
+# Ignore temporary files
+tmp/
+*.tar.gz
+
+# Ignore build and distribution directories
+backup/
+bin/
+x-ui/
+dist/
+release/
+node_modules/
+
+# Ignore compiled binaries
+main
+3x-ui
+
+# Ignore OS specific files
 .DS_Store
 Thumbs.db
 
-# Editors
-.idea/
-.vscode/
-*.swp
+# Ignore Go build files
+*.exe
+x-ui.db
+x-ui.db-shm
+x-ui.db-wal
+system_metrics.gob
+*.dump
 
-# Go
-/bin/
-*.test
-*.out
+# Ignore Docker specific files
+docker-compose.override.yml
 
-# Frontend
-node_modules/
-dist/
-build/
-
-# Runtime
-*.db
-*.sqlite
-*.sqlite3
+# Ignore .env (Environment Variables) file
 .env
-.env.*
-!.env.example
-
-# Secrets
-*.pem
-*.key
-secrets/
