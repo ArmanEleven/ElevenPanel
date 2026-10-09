@@ -7,10 +7,10 @@ CI is necessary but not sufficient: each phase needs functional acceptance crite
 - [x] Repository created and Sanaei/3x-ui v3.9.0 baseline pinned
 - [x] Product direction and integration boundary documented
 - [x] Product requirements, architecture recommendation, delivery sequence, and open decisions documented
-- [ ] Build a capability matrix for Sanaei/3x-ui versus PasarGuard
+- [x] Build an initial capability matrix for Sanaei/3x-ui versus PasarGuard (feature parity still requires source-level verification)
 - [ ] Map frontend routes, API/auth boundaries, database models, node dispatch, and installer/update behavior
 - [ ] Identify high-risk compatibility/security issues and duplicate implementations
-- [ ] Establish reproducible baseline CI on the current branch
+- [x] Establish a green CI baseline on the current branch (functional and production acceptance gates remain open)
 
 ## Phase 1 — Eleven identity and foundation
 - [ ] Rebrand user-facing application, installer, service labels, and documentation to Eleven Panel
