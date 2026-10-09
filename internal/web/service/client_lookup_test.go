@@ -97,6 +97,6 @@ func TestGetRecordByUUID(t *testing.T) {
 	}
 
 	if _, err := svc.GetRecordByUUID(nil, ""); err == nil || err.Error() != "uuid must not be empty" {
-		t.Fatalf("GetRecordByUUID("") error = %v, want uuid must not be empty", err)
+		t.Fatalf("GetRecordByUUID empty input error = %v, want uuid must not be empty", err)
 	}
 }
