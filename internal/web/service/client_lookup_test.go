@@ -78,3 +78,26 @@ func TestGetRecordsByTgID(t *testing.T) {
 		}
 	})
 }
+
+
+func TestGetRecordByUUID(t *testing.T) {
+	setupBulkDB(t)
+	svc := &ClientService{}
+	db := database.GetDB()
+	record := model.ClientRecord{Email: "stable-id@x", UUID: "uuid-123"}
+	if err := db.Create(&record).Error; err != nil {
+		t.Fatalf("create record: %v", err)
+	}
+
+	got, err := svc.GetRecordByUUID(nil, "uuid-123")
+	if err != nil {
+		t.Fatalf("GetRecordByUUID: %v", err)
+	}
+	if got.Email != record.Email {
+		t.Fatalf("email = %q, want %q", got.Email, record.Email)
+	}
+
+	if _, err := svc.GetRecordByUUID(nil, ""); err == nil {
+		t.Fatal("expected empty UUID to be rejected")
+	}
+}
