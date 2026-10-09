@@ -227,8 +227,8 @@ func (a *SanaeiAdapter) GetClientTraffic(id string) (TrafficResult, error) {
 		return TrafficResult{}, fmt.Errorf("traffic not found for client %q", id)
 	}
 	return TrafficResult{
-		UpBytes:   traffic.Up,
-		DownBytes: traffic.Down,
+		UpBytes:    traffic.Up,
+		DownBytes:  traffic.Down,
 		LimitBytes: traffic.Total,
 	}, nil
 }
