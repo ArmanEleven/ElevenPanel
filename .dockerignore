@@ -8,3 +8,12 @@ pgdata
 x-ui/
 *.db
 *.dump
+
+# Local environment files and sensitive material
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+acme/
