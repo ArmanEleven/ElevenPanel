@@ -18,9 +18,9 @@ func TestReconcileReportsUnsupportedOperation(t *testing.T) {
 
 func TestClientIdentifierFallsBackToEmail(t *testing.T) {
 	tests := []struct {
-		name string
+		name   string
 		record model.ClientRecord
-		want string
+		want   string
 	}{
 		{name: "UUID", record: model.ClientRecord{UUID: "uuid-123", Email: "client@example.com"}, want: "uuid-123"},
 		{name: "email fallback", record: model.ClientRecord{Email: "client@example.com"}, want: "client@example.com"},
