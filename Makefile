@@ -1,4 +1,4 @@
-# Canonical task runner. Mirrors .github/workflows/ci.yml so `make verify`
+# Canonical task runner. Mirrors .github/workflows/eleven-check.yml so `make verify`
 # reproduces the PR gate locally. Run `make help` for the list.
 
 SHELL := bash
@@ -81,7 +81,7 @@ build: build-fe ## Build the frontend then the Go binary
 build-storybook: ## Build the static Storybook (compile-checks all stories)
 	cd $(FRONTEND) && npm run build-storybook
 
-# The PR gate. Matches ci.yml: codegen freshness, both linters, the formatter,
+# The PR gate. Matches eleven-check.yml: codegen freshness, both linters, the formatter,
 # typecheck, both test suites, a full build, and the Storybook compile-check.
 .PHONY: verify
 verify: gen-check lint format-check typecheck msw-worker-check test build build-storybook ## Full local gate (mirrors CI)
