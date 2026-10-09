@@ -289,12 +289,8 @@ func (a *SanaeiAdapter) GetInbound(id string) (InboundResult, error) {
 	}, nil
 }
 
-// Reconcile is intentionally a no-op in the first adapter slice.
-//
-// Reconciliation will be implemented after Eleven's service/node
-// ownership model is connected to Sanaei's synchronization behavior.
 func (a *SanaeiAdapter) Reconcile() error {
-	return nil
+	return fmt.Errorf("sanaei reconciliation not implemented")
 }
 
 // Compile-time assertion.
