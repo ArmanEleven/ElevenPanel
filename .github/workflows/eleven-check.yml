@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  structure:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -40,9 +40,16 @@ jobs:
         working-directory: frontend
         run: npm ci
 
-      - name: Build embedded frontend
+      - name: Install Playwright Chromium
         working-directory: frontend
-        run: npm run build
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify generated API artifacts
+        run: |
+          cd frontend
+          npm run gen
+          cd ..
+          git diff --exit-code -- frontend/src/generated frontend/public/openapi.json
 
       - name: gofmt check
         run: |
@@ -53,5 +60,41 @@ jobs:
             exit 1
           fi
 
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: latest
+          args: --timeout=5m
+
+      - name: Frontend lint
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Frontend format check
+        working-directory: frontend
+        run: npm run format:check
+
+      - name: Frontend typecheck
+        working-directory: frontend
+        run: npm run typecheck
+
+      - name: MSW worker check
+        run: make msw-worker-check
+
+      - name: Frontend tests
+        working-directory: frontend
+        run: npm test
+
+      - name: Build embedded frontend
+        working-directory: frontend
+        run: npm run build
+
       - name: Go tests
-        run: go test ./...
+        run: go test -shuffle=on -count=1 ./...
+
+      - name: Go build
+        run: go build ./...
+
+      - name: Storybook build
+        working-directory: frontend
+        run: npm run build-storybook
