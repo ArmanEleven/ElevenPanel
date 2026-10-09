@@ -51,9 +51,9 @@ surface — still pre-existing, but open the summary with it.
 - A change to what the panel emits on the wire — Xray config JSON, share
   links, subscription/Clash YAML, mtg-multi TOML, AmneziaWG obfuscation
   parameters — that a downstream client would reject or read differently, or
-  that makes two independent implementations of the same output diverge: the
-  three link implementations (Go `internal/util/link/` + `internal/sub/`, TS
-  `frontend/src/lib/xray/`, TS `docs/lib/xray/`), and the AmneziaWG 3.1
+  that makes independent implementations of the same output diverge: the
+  Go link code (`internal/util/link/` + `internal/sub/`) and TS
+  `frontend/src/lib/xray/`, plus the AmneziaWG 3.1
   generator in Go (`internal/amneziawg/params.go`) versus TS
   (`frontend/src/lib/xray/amneziawg-obfuscation.ts`).
 - Any edit to `.github/workflows/`: this repository runs workflows with
