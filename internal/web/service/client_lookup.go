@@ -24,6 +24,20 @@ func (s *ClientService) GetRecordByEmail(tx *gorm.DB, email string) (*model.Clie
 	return row, nil
 }
 
+func (s *ClientService) GetRecordByUUID(tx *gorm.DB, uuid string) (*model.ClientRecord, error) {
+	if strings.TrimSpace(uuid) == "" {
+		return nil, errors.New("uuid must not be empty")
+	}
+	if tx == nil {
+		tx = database.GetDB()
+	}
+	row := &model.ClientRecord{}
+	if err := tx.Where("uuid = ?", uuid).First(row).Error; err != nil {
+		return nil, err
+	}
+	return row, nil
+}
+
 // EffectiveFlow returns the client's flow from the first flow-capable inbound
 // it is attached to (lowest inbound_id with a non-empty flow_override). The
 // canonical clients.Flow column is unreliable for multi-inbound clients: a
