@@ -252,8 +252,10 @@ func (a *SanaeiAdapter) GetInbound(id string) (InboundResult, error) {
 	}, nil
 }
 
+var errReconciliationNotImplemented = errors.New("sanaei reconciliation not implemented")
+
 func (a *SanaeiAdapter) Reconcile() error {
-	return fmt.Errorf("sanaei reconciliation not implemented")
+	return errReconciliationNotImplemented
 }
 
 var _ ClientAdapter = (*SanaeiAdapter)(nil)
