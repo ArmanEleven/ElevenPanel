@@ -1,6 +1,7 @@
 package adapter
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/mhsanaei/3x-ui/v3/internal/config"
@@ -11,8 +12,9 @@ import (
 )
 
 func TestReconcileReportsUnsupportedOperation(t *testing.T) {
-	if err := NewSanaeiAdapter(nil, nil).Reconcile(); err == nil {
-		t.Fatal("Reconcile returned nil before reconciliation is implemented")
+	err := NewSanaeiAdapter(nil, nil).Reconcile()
+	if !errors.Is(err, errReconciliationNotImplemented) {
+		t.Fatalf("Reconcile() error = %v, want %v", err, errReconciliationNotImplemented)
 	}
 }
 
