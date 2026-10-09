@@ -5,16 +5,16 @@
 - [x] Define product direction
 - [x] Define architecture
 - [x] Define migration principle
-- [ ] Pin Sanaei upstream revision
-- [ ] Inspect current database schema
-- [ ] Inspect current authentication/API/frontend structure
+- [x] Pin Sanaei upstream revision
+- [x] Inspect current database schema
+- [x] Inspect current authentication/API/frontend structure
 
 ## Phase 1 — Foundation
-- [ ] Import/pin Sanaei base
-- [ ] Rebrand to Eleven Panel
-- [ ] Build without functional regressions
-- [ ] Add CI
-- [ ] Add version information
+- [x] Import/pin Sanaei base
+- [ ] Rebrand the user-facing panel to Eleven Panel
+- [ ] Verify build and regression checks across backend and frontend
+- [x] Add CI for generated artifacts, Go checks, and frontend checks
+- [ ] Add centralized application version information
 
 ## Phase 2 — Identity
 - [ ] Admin accounts
