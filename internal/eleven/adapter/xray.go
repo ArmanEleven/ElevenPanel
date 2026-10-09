@@ -35,7 +35,7 @@ type ClientResult struct {
 type TrafficResult struct {
 	UpBytes   int64
 	DownBytes int64
-	Total     int64
+	LimitBytes int64
 }
 
 type InboundResult struct {
