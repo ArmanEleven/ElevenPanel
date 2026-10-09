@@ -100,7 +100,7 @@ func (a *SanaeiAdapter) ProvisionClient(input ProvisionClientInput) (ClientResul
 	}
 
 	return ClientResult{
-		ID:        record.UUID,
+		ID:        clientIdentifier(record),
 		InboundID: input.InboundID,
 		Email:     record.Email,
 		Enabled:   record.Enable,
@@ -108,6 +108,13 @@ func (a *SanaeiAdapter) ProvisionClient(input ProvisionClientInput) (ClientResul
 }
 
 // findClientRecord accepts a returned UUID or a legacy email identifier.
+
+func clientIdentifier(record *model.ClientRecord) string {
+	if strings.TrimSpace(record.UUID) != "" {
+		return record.UUID
+	}
+	return record.Email
+}
 
 func (a *SanaeiAdapter) findClientRecord(id string) (*model.ClientRecord, error) {
 	if strings.TrimSpace(id) == "" {
@@ -199,7 +206,7 @@ func (a *SanaeiAdapter) UpdateClient(
 	}
 
 	return ClientResult{
-		ID:      result.UUID,
+		ID:      clientIdentifier(result),
 		Email:   result.Email,
 		Enabled: result.Enable,
 	}, nil
