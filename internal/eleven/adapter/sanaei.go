@@ -107,7 +107,7 @@ func (a *SanaeiAdapter) ProvisionClient(input ProvisionClientInput) (ClientResul
 	}, nil
 }
 
-// UpdateClient accepts the returned UUID or a legacy email identifier.
+// findClientRecord accepts a returned UUID or a legacy email identifier.
 
 func (a *SanaeiAdapter) findClientRecord(id string) (*model.ClientRecord, error) {
 	if strings.TrimSpace(id) == "" {
