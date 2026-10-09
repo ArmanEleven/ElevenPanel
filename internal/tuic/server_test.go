@@ -745,7 +745,6 @@ func TestAuthenticationTimeoutClosesUnauthenticatedConnections(t *testing.T) {
 	}
 }
 
-
 func waitForClientTraffic(t *testing.T, server *Server, email string, minBytes int64) {
 	t.Helper()
 	deadline := time.Now().Add(2 * time.Second)
