@@ -63,13 +63,11 @@ surface — still pre-existing, but open the summary with it.
 
 ## Always check
 
-- A new `g.POST`/`g.GET` in `internal/web/controller/` needs the whole chain:
-  an entry in `frontend/src/pages/api-docs/endpoints.ts`, regenerated
-  artefacts (`make gen`), any new API-boundary struct added to `StructAllow`
-  in `tools/openapigen/main.go`, and `frontend/public/openapi.json` copied to
-  `docs/public/openapi.json` with the docs MDX regenerated
-  (`cd docs && pnpm gen:api`). CI checks the first three; the docs copy is
-  checked by nothing — a missed copy is HIGH, not LOW.
+- A new `g.POST`/`g.GET` in `internal/web/controller/` needs the whole
+  in-panel API-doc chain: `frontend/src/pages/api-docs/endpoints.ts`, generated
+  artefacts (`make gen`), and any new API-boundary struct in `StructAllow`
+  within `tools/openapigen/main.go`. The current `docs/` directory contains
+  Markdown product docs, not a separate API-doc site.
 - A bug fix carries a test that would fail without the fix. A test that cannot
   tell the broken behaviour from the fixed one passes before and after, so it
   certifies nothing and is itself the finding — asserting only `err != nil` or
@@ -118,11 +116,11 @@ the code already handles is not a finding at all.
 
 ## Do not report
 
-- Anything CI already enforces: golangci-lint and gofumpt, oxlint, format
-  and typecheck, govulncheck, and `npm audit --omit=dev --audit-level=high`.
-  A dev-dependency advisory is out of scope on purpose: it ships to nobody.
+- Anything CI already enforces: Go lint, frontend lint/format/typecheck/tests,
+  generated-artifact freshness, Go tests/build, and Storybook compilation.
+  Security audits (`govulncheck` and `npm audit`) are not yet part of the PR gate.
 - The contents of generated files (`frontend/src/generated/`,
-  `frontend/public/openapi.json`, `docs/public/openapi.json`) or lock files.
+  `frontend/public/openapi.json`) or lock files.
   Those files being STALE after a source change is reportable; their style
   is not.
 - Missing tests for getters, constants, renames or pure map lookups —
@@ -138,9 +136,8 @@ Everything named under "What HIGH means here" gets full scrutiny. Two
 areas do not — they earn review, but report there only what you are
 near-certain about and that actually breaks something:
 
-- `docs/` — the standalone Fumadocs site, with its own CI and its own
-  dependency tree. `docs/lib/xray/` is the exception and gets full scrutiny:
-  it is the third link implementation.
+- `docs/` — Markdown product documentation. Check it for factual consistency
+  when changing the architecture, API contract, migration, or integration behavior.
 - `internal/web/translation/` — the key set is CI's job and the wording of a
   translation is nobody's here.
 
