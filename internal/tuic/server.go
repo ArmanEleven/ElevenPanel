@@ -541,7 +541,7 @@ func (s *Server) handleUniStream(
 		// Wait for the sender's FIN and reject trailing bytes before canceling
 		// the receive side. CancelRead immediately after the payload races with
 		// the sender's Close and can make a valid stream close fail intermittently.
-		if _, err := io.CopyN(io.Discard, stream, 1); err != io.EOF {
+		if _, err := io.CopyN(io.Discard, stream, 1); !errors.Is(err, io.EOF) {
 			return
 		}
 		s.handlePacket(ctx, conn, user, hdr, payload, packetTransportStream, udpAssociations, relayWg)
