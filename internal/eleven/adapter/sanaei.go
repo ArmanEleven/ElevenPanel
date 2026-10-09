@@ -224,16 +224,26 @@ func (a *SanaeiAdapter) RevokeClient(id string) error {
 	return nil
 }
 
-// GetClientTraffic is intentionally not implemented yet.
-//
-// Traffic ownership and aggregation need to be mapped to Sanaei's
-// existing traffic services before exposing this through Eleven.
 func (a *SanaeiAdapter) GetClientTraffic(
 	id string,
 ) (TrafficResult, error) {
-	return TrafficResult{}, fmt.Errorf(
-		"sanaei traffic adapter not implemented",
-	)
+	if strings.TrimSpace(id) == "" {
+		return TrafficResult{}, fmt.Errorf("client id is required")
+	}
+
+	traffic, err := a.inboundService.GetClientTrafficByEmail(id)
+	if err != nil {
+		return TrafficResult{}, fmt.Errorf("get traffic for client %q: %w", id, err)
+	}
+	if traffic == nil {
+		return TrafficResult{}, fmt.Errorf("traffic not found for client %q", id)
+	}
+
+	return TrafficResult{
+		UpBytes:   traffic.Up,
+		DownBytes: traffic.Down,
+		Total:     traffic.Up + traffic.Down,
+	}, nil
 }
 
 // GetInbound reads an existing Sanaei inbound without duplicating
