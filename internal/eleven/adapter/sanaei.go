@@ -1,12 +1,14 @@
 package adapter
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 
 	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
 	"github.com/mhsanaei/3x-ui/v3/internal/web/service"
+	"gorm.io/gorm"
 )
 
 // SanaeiAdapter connects Eleven service-management operations
@@ -107,8 +109,7 @@ func (a *SanaeiAdapter) ProvisionClient(input ProvisionClientInput) (ClientResul
 	}, nil
 }
 
-// findClientRecord accepts a returned UUID or a legacy email identifier.
-
+// clientIdentifier prefers UUIDs and falls back to email for clients without one.
 func clientIdentifier(record *model.ClientRecord) string {
 	if strings.TrimSpace(record.UUID) != "" {
 		return record.UUID
@@ -116,12 +117,17 @@ func clientIdentifier(record *model.ClientRecord) string {
 	return record.Email
 }
 
+// findClientRecord accepts a returned UUID or a legacy email identifier.
 func (a *SanaeiAdapter) findClientRecord(id string) (*model.ClientRecord, error) {
 	if strings.TrimSpace(id) == "" {
 		return nil, fmt.Errorf("client id is required")
 	}
-	if record, err := a.clientService.GetRecordByUUID(nil, id); err == nil {
+	record, err := a.clientService.GetRecordByUUID(nil, id)
+	if err == nil {
 		return record, nil
+	}
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, fmt.Errorf("find client by UUID: %w", err)
 	}
 	return a.clientService.GetRecordByEmail(nil, id)
 }
