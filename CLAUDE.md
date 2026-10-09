@@ -4,7 +4,7 @@ Operational guide for AI agents working in this repo. Long-form human docs:
 `CONTRIBUTING.md` (setup, testing philosophy) and `frontend/README.md`.
 Read those before large changes. This file is the short, must-follow version.
 For a deep navigation map (request lifecycle, cron-job table, symptom → file
-index, layering rules), read `docs/architecture.md` on demand — do not guess
+index, layering rules), read `docs/ARCHITECTURE.md` on demand — do not guess
 file locations when it can answer in one hop.
 
 ## Stack
@@ -60,7 +60,7 @@ file locations when it can answer in one hop.
   - `service/` — business logic (InboundService, SettingService, XrayService,
     node sync); subpackages tgbot/, discord/, email/, outbound/, panel/, integration/.
   - `job/` — 19 cron jobs (traffic, fail2ban IP-limit, node heartbeat/sync, LDAP,
-    CPU/memory watchdogs, …); full table in `docs/architecture.md` §5.4.
+    CPU/memory watchdogs, …); full table in `docs/ARCHITECTURE.md` §5.4.
   - `middleware/`, `entity/`, `global/`, `session/` (CSRF), `network/`,
     `runtime/` (master/sub-node over mTLS), `websocket/`.
   - `locale/` + `translation/` — i18n, 13 embedded locale JSON files.
@@ -69,10 +69,9 @@ file locations when it can answer in one hop.
   into `frontend/src/generated/` from Go structs. The OpenAPI doc itself
   (`frontend/public/openapi.json`) is assembled from those + `endpoints.ts` by
   `frontend/scripts/build-openapi.mjs`.
-- `docs/` — separate Next.js/Fumadocs site (pnpm, own CI in `docs-ci.yml`,
-  outside `make verify`). Holds a THIRD independent implementation of
-  link/subscription generation in `docs/lib/xray/` — check it whenever
-  share-link or install-command output changes.
+- `docs/` — Markdown product docs: `ARCHITECTURE.md`, `DATABASE.md`,
+  `MIGRATION.md`, `ROADMAP.md`, `SANAEI-INTEGRATION.md`, and `UPSTREAM.md`.
+  There is no separate docs-site build in this repository.
 
 ## Hard rules (non-negotiable)
 - Correct fix over small fix. Find the root cause and fix it the right way, however
@@ -102,10 +101,8 @@ file locations when it can answer in one hop.
   never hand-write them. A new struct must be added to openapigen's `StructAllow`
   allowlist (`tools/openapigen/main.go`) or it is silently omitted from
   schemas/examples (and `build-openapi.mjs` then fails on the missing schema).
-- A new or renamed endpoint has a FOURTH step nothing checks: copy
-  `frontend/public/openapi.json` → `docs/public/openapi.json`, then
-  `cd docs && pnpm gen:api` to refresh the MDX under
-  `docs/content/docs/en/reference/api/`. `docs-ci.yml` fires only on `docs/**`.
+- Update the relevant Markdown contract in `docs/ARCHITECTURE.md` or
+  `docs/SANAEI-INTEGRATION.md` when a product-level API or integration contract changes.
 - A new English i18n key goes in EVERY locale JSON in `internal/web/translation/`
   (13 files) AND must be referenced from `frontend/src` or Go in the SAME commit —
   `frontend/src/test/i18n-dead-keys.test.ts` fails both ways. It is a frontend
@@ -115,7 +112,7 @@ file locations when it can answer in one hop.
 - Every state-changing inbound/client op dispatches through `runtime.Runtime`
   (`internal/web/runtime/`) — never straight to `internal/xray/api.go`, never from
   a controller or cron job. A direct call passes every local test and silently
-  breaks every multi-node deployment. Other layering rules: `docs/architecture.md` §8.
+  breaks every multi-node deployment. Other layering rules: `docs/ARCHITECTURE.md` §8.
 - Conventional commits: `type(area): short imperative summary`, then a body
   explaining the why. Types in use: `fix`, `feat`, `chore`, `refactor`, `perf`,
   `docs`, `style`.
@@ -190,10 +187,10 @@ reads as a broken repo, not a missing step. Run `make dist-stub` once; every
 
     make verify   # gen-check + lint + typecheck + test + build + build-storybook
 
-That is the *fast* gate, not all of CI. `ci.yml` also runs `make race`,
-`make vulncheck`, a live-Postgres job (where a SKIP counts as a failure) and a
-30s fuzz smoke on `FuzzParseLink`/`FuzzDecodeCertPin` — run those locally when
-you touch DB/dialect or parser code.
+The PR gate is `.github/workflows/eleven-check.yml`: generated-artifact
+freshness, Go lint/tests/build, frontend lint/format/typecheck/tests/build, and
+Storybook compilation. `make race` and `make vulncheck` are additional
+pre-release checks and should be run when changing concurrency or security-sensitive code.
 
 Common targets: `make gen` (regenerate Zod/OpenAPI), `make lint` (Go + frontend),
 `make test` (Go `-shuffle=on` + frontend), `make race`, `make build`. See `Makefile`.
