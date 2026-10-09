@@ -107,11 +107,18 @@ func (a *SanaeiAdapter) ProvisionClient(input ProvisionClientInput) (ClientResul
 	}, nil
 }
 
-// UpdateClient updates an existing client through Sanaei's own update path.
-//
-// The current adapter contract uses id as the client's current email.
-// Sanaei resolves that stable identity to its internal ClientRecord ID
-// before executing the complete update flow.
+// UpdateClient accepts the returned UUID or a legacy email identifier.
+
+func (a *SanaeiAdapter) findClientRecord(id string) (*model.ClientRecord, error) {
+	if strings.TrimSpace(id) == "" {
+		return nil, fmt.Errorf("client id is required")
+	}
+	if record, err := a.clientService.GetRecordByUUID(nil, id); err == nil {
+		return record, nil
+	}
+	return a.clientService.GetRecordByEmail(nil, id)
+}
+
 func (a *SanaeiAdapter) UpdateClient(
 	id string,
 	input UpdateClientInput,
@@ -120,7 +127,7 @@ func (a *SanaeiAdapter) UpdateClient(
 		return ClientResult{}, fmt.Errorf("client id is required")
 	}
 
-	record, err := a.clientService.GetRecordByEmail(nil, id)
+	record, err := a.findClientRecord(id)
 	if err != nil {
 		return ClientResult{}, fmt.Errorf(
 			"find client %q: %w",
@@ -208,9 +215,13 @@ func (a *SanaeiAdapter) RevokeClient(id string) error {
 		return fmt.Errorf("client id is required")
 	}
 
-	_, err := a.clientService.DeleteByEmail(
+	record, err := a.findClientRecord(id)
+	if err != nil {
+		return fmt.Errorf("find client %q: %w", id, err)
+	}
+	_, err = a.clientService.DeleteByEmail(
 		a.inboundService,
-		id,
+		record.Email,
 		false,
 	)
 	if err != nil {
@@ -231,7 +242,11 @@ func (a *SanaeiAdapter) GetClientTraffic(
 		return TrafficResult{}, fmt.Errorf("client id is required")
 	}
 
-	traffic, err := a.inboundService.GetClientTrafficByEmail(id)
+	record, err := a.findClientRecord(id)
+	if err != nil {
+		return TrafficResult{}, fmt.Errorf("find client %q: %w", id, err)
+	}
+	traffic, err := a.inboundService.GetClientTrafficByEmail(record.Email)
 	if err != nil {
 		return TrafficResult{}, fmt.Errorf("get traffic for client %q: %w", id, err)
 	}
