@@ -60,6 +60,9 @@ jobs:
             exit 1
           fi
 
+      - name: Prepare embedded frontend stub for Go tooling
+        run: make dist-stub
+
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v8
         with:
