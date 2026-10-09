@@ -96,7 +96,7 @@ func TestGetRecordByUUID(t *testing.T) {
 		t.Fatalf("email = %q, want %q", got.Email, record.Email)
 	}
 
-	if _, err := svc.GetRecordByUUID(nil, ""); err == nil {
-		t.Fatal("expected empty UUID to be rejected")
+	if _, err := svc.GetRecordByUUID(nil, ""); err == nil || err.Error() != "uuid must not be empty" {
+		t.Fatalf("GetRecordByUUID("") error = %v, want uuid must not be empty", err)
 	}
 }
