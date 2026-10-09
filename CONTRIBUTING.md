@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for taking the time to contribute to 3x-ui. This guide gets a development panel running locally and explains the conventions the project follows so changes land cleanly.
+Thanks for taking the time to contribute to Eleven Panel. This guide gets a development panel running locally and explains the conventions the project follows so changes land cleanly.
 
 ## Prerequisites
 
@@ -50,8 +50,8 @@ Cross-building the Linux SQLite target from Windows (or vice versa) requires a s
 ## First-time setup
 
 ```bash
-git clone https://github.com/MHSanaei/3x-ui.git
-cd 3x-ui
+git clone https://github.com/ArmanEleven/ElevenPanel.git
+cd ElevenPanel
 
 cp .env.example .env
 
@@ -286,7 +286,7 @@ CI runs this for you nightly (and on demand) via `.github/workflows/mutation.yml
 
 ### CI
 
-`.github/workflows/ci.yml` runs per PR: `go-test` (with `-shuffle -count=1`), a `race` job (`-race -shuffle -count=1`), a `fuzz-smoke` job on the critical parsers, and the frontend `typecheck`/`lint`/`format:check`/`test`/`build`/`build-storybook`. Snapshots are regression guards — regenerate them (`npx vitest run -u`) only for intentional output changes, never to make a red test green.
+`.github/workflows/eleven-check.yml` runs per push and PR: generated-artifact freshness, Go lint/tests/build, frontend typecheck/lint/format/tests/build, and Storybook compilation. The race and vulnerability checks are available as `make race` and `make vulncheck` for focused or pre-release verification. Snapshots are regression guards — regenerate them (`npx vitest run -u`) only for intentional output changes, never to make a red test green.
 
 ## Sending a pull request
 
@@ -295,7 +295,7 @@ CI runs this for you nightly (and on demand) via `.github/workflows/mutation.yml
 3. Run the relevant checks before pushing:
    - `go build ./...`
    - `go test ./...` (when Go code changed)
-   - `cd frontend && npm run typecheck && npm run lint && npm run format:check && npm run test && npm run build && npm run build-storybook` (when the frontend changed; CI runs this same set on every PR via `.github/workflows/ci.yml`)
+   - `cd frontend && npm run typecheck && npm run lint && npm run format:check && npm run test && npm run build && npm run build-storybook` (when the frontend changed; CI runs this same set on every PR via `.github/workflows/eleven-check.yml`)
 4. Commit messages follow the existing pattern in `git log` — `<area>: short imperative summary`, then a body explaining the *why*. Conventional-commit prefixes (`feat`, `fix`, `refactor`, `chore`, `style`, `docs`) are encouraged.
 5. Open the PR against `main` with a brief description of what changed and how to test it.
 
