@@ -24,9 +24,9 @@ type ProvisionClientInput struct {
 }
 
 type UpdateClientInput struct {
-	Expiry    *int64
-	TotalGB   *int64
-	Enabled   *bool
+	Expiry  *int64
+	TotalGB *int64
+	Enabled *bool
 }
 
 type ClientResult struct {
@@ -43,7 +43,7 @@ type TrafficResult struct {
 }
 
 type InboundResult struct {
-	ID      string
+	ID       string
 	Protocol string
-	Remark  string
+	Remark   string
 }
