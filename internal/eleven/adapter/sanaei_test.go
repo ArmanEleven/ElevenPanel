@@ -61,7 +61,7 @@ func TestGetClientTrafficUsesStableIDAndPreservesQuota(t *testing.T) {
 	if got.UpBytes != 123 || got.DownBytes != 456 {
 		t.Fatalf("traffic = %+v, want upload 123 and download 456", got)
 	}
-	if got.Total != 10000 {
+	if got.LimitBytes != 10000 {
 		t.Fatalf("quota = %d, want 10000", got.Total)
 	}
 }
