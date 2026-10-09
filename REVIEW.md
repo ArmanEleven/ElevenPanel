@@ -56,10 +56,9 @@ surface — still pre-existing, but open the summary with it.
   `frontend/src/lib/xray/`, plus the AmneziaWG 3.1
   generator in Go (`internal/amneziawg/params.go`) versus TS
   (`frontend/src/lib/xray/amneziawg-obfuscation.ts`).
-- Any edit to `.github/workflows/`: this repository runs workflows with
-  secrets against a public fork stream. Untrusted expression interpolation
-  into `run:` blocks, broadened permissions, weakened guards, or a job that
-  executes pull-request code.
+- Any edit to `.github/workflows/` needs security review: pull-request
+  code runs in CI, so never interpolate untrusted input into `run:` blocks,
+  broaden token permissions, weaken guards, or expose secrets.
 
 ## Always check
 
