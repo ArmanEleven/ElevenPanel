@@ -196,13 +196,7 @@ func testServerTCPConnectE2E(t *testing.T, controller string) {
 		t.Fatalf("expected active email alice@example.com, got %v", activeEmails)
 	}
 
-	deltas := server.CollectClientTraffic()
-	if len(deltas) == 0 {
-		t.Fatalf("expected traffic deltas, got none")
-	}
-	if deltas[0].Email != "alice@example.com" || deltas[0].Up < int64(len(testMsg)) || deltas[0].Down < int64(len(testMsg)) {
-		t.Fatalf("unexpected traffic deltas: %+v", deltas[0])
-	}
+	waitForClientTraffic(t, server, "alice@example.com", int64(len(testMsg)))
 }
 
 func TestServerUDPDatagramE2E(t *testing.T) {
@@ -356,13 +350,7 @@ func testServerUDPDatagramE2E(t *testing.T, controller string) {
 	}
 
 	// 4. Verify traffic
-	deltas := server.CollectClientTraffic()
-	if len(deltas) == 0 {
-		t.Fatalf("expected traffic deltas, got none")
-	}
-	if deltas[0].Email != "bob@example.com" || deltas[0].Up < int64(len(udpMsg)) || deltas[0].Down < int64(len(udpMsg)) {
-		t.Fatalf("unexpected traffic deltas: %+v", deltas[0])
-	}
+	waitForClientTraffic(t, server, "bob@example.com", int64(len(udpMsg)))
 }
 
 func TestServerUDPStreamE2E(t *testing.T) {
@@ -754,5 +742,29 @@ func TestAuthenticationTimeoutClosesUnauthenticatedConnections(t *testing.T) {
 				t.Fatalf("server left unauthenticated QUIC connection open: %v", ctx.Err())
 			}
 		})
+	}
+}
+
+
+func waitForClientTraffic(t *testing.T, server *Server, email string, minBytes int64) {
+	t.Helper()
+	deadline := time.Now().Add(2 * time.Second)
+	var up, down int64
+
+	for {
+		for _, delta := range server.CollectClientTraffic() {
+			if delta.Email == email {
+				up += delta.Up
+				down += delta.Down
+			}
+		}
+		if up >= minBytes && down >= minBytes {
+			return
+		}
+		if time.Now().After(deadline) {
+			t.Fatalf("traffic for %s did not reach expected bytes: up=%d down=%d want >=%d", email, up, down, minBytes)
+			return
+		}
+		time.Sleep(10 * time.Millisecond)
 	}
 }
