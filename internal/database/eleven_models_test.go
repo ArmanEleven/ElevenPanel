@@ -39,7 +39,10 @@ func TestInitDBMigratesElevenTablesWithoutReplacingSanaeiTables(t *testing.T) {
 		}
 	}
 
-	for _, index := range []struct { model any; name string }{
+	for _, index := range []struct {
+		model any
+		name  string
+	}{
 		{&elevenidentity.Admin{}, "ux_eleven_admin_username"},
 		{&elevenidentity.Role{}, "ux_eleven_role_name"},
 		{&elevenidentity.Permission{}, "ux_eleven_permission_key"},
