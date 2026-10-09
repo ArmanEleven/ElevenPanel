@@ -33,8 +33,8 @@ type ClientResult struct {
 }
 
 type TrafficResult struct {
-	UpBytes   int64
-	DownBytes int64
+	UpBytes    int64
+	DownBytes  int64
 	LimitBytes int64
 }
 
