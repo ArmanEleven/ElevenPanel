@@ -47,6 +47,9 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      - name: Verify tracked MSW worker
+        run: git diff --exit-code -- frontend/public/mockServiceWorker.js
+
       - name: Install Playwright Chromium
         working-directory: frontend
         run: npx playwright install --with-deps chromium
@@ -87,12 +90,6 @@ jobs:
       - name: Frontend typecheck
         working-directory: frontend
         run: npm run typecheck
-
-      - name: Generate current MSW worker for repository sync
-        working-directory: frontend
-        run: |
-          npx msw init public --no-save
-          cat public/mockServiceWorker.js
 
       - name: MSW worker check
         run: make msw-worker-check
