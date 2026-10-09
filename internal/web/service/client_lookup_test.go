@@ -79,7 +79,6 @@ func TestGetRecordsByTgID(t *testing.T) {
 	})
 }
 
-
 func TestGetRecordByUUID(t *testing.T) {
 	setupBulkDB(t)
 	svc := &ClientService{}
