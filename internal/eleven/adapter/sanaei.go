@@ -257,7 +257,7 @@ func (a *SanaeiAdapter) GetClientTraffic(
 	return TrafficResult{
 		UpBytes:   traffic.Up,
 		DownBytes: traffic.Down,
-		Total:     traffic.Up + traffic.Down,
+		Total:     traffic.Total,
 	}, nil
 }
 
