@@ -43,3 +43,16 @@ docker-compose.override.yml
 
 # Ignore .env (Environment Variables) file
 .env
+
+# Local environment files (keep the documented example tracked)
+.env.*
+!.env.example
+
+# Credentials, certificates, and local runtime state
+*.pem
+*.key
+secrets/
+cert/
+acme/
+db/
+pgdata/
