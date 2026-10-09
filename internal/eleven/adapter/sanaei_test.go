@@ -16,6 +16,25 @@ func TestReconcileReportsUnsupportedOperation(t *testing.T) {
 	}
 }
 
+func TestClientIdentifierFallsBackToEmail(t *testing.T) {
+	tests := []struct {
+		name string
+		record model.ClientRecord
+		want string
+	}{
+		{name: "UUID", record: model.ClientRecord{UUID: "uuid-123", Email: "client@example.com"}, want: "uuid-123"},
+		{name: "email fallback", record: model.ClientRecord{Email: "client@example.com"}, want: "client@example.com"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := clientIdentifier(&tt.record); got != tt.want {
+				t.Fatalf("clientIdentifier() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestGetClientTrafficUsesStableIDAndPreservesQuota(t *testing.T) {
 	t.Setenv("XUI_DB_FOLDER", t.TempDir())
 	dbtest.InitDB(t, config.GetDBPath())
