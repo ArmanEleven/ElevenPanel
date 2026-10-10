@@ -4,13 +4,13 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database"
-	elevenidentity "github.com/mhsanaei/3x-ui/v3/internal/eleven/identity"
-	v1 "github.com/mhsanaei/3x-ui/v3/internal/eleven/api/v1"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/session"
-
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+
+	"github.com/mhsanaei/3x-ui/v3/internal/database"
+	v1 "github.com/mhsanaei/3x-ui/v3/internal/eleven/api/v1"
+	elevenidentity "github.com/mhsanaei/3x-ui/v3/internal/eleven/identity"
+	"github.com/mhsanaei/3x-ui/v3/internal/web/session"
 )
 
 type ElevenController struct{}
@@ -41,7 +41,7 @@ func (c *ElevenController) requirePermission(permission string) gin.HandlerFunc 
 		user := session.GetLoginUser(ctx)
 		if user == nil {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, v1.ErrorResponse{
-				Code: "authentication_required",
+				Code:    "authentication_required",
 				Message: "برای دسترسی به این بخش ابتدا وارد پنل شوید.",
 			})
 			return
@@ -50,7 +50,7 @@ func (c *ElevenController) requirePermission(permission string) gin.HandlerFunc 
 		db := database.GetDB()
 		if db == nil {
 			ctx.AbortWithStatusJSON(http.StatusServiceUnavailable, v1.ErrorResponse{
-				Code: "identity_store_unavailable",
+				Code:    "identity_store_unavailable",
 				Message: "سرویس احراز هویت موقتاً در دسترس نیست.",
 			})
 			return
@@ -60,21 +60,21 @@ func (c *ElevenController) requirePermission(permission string) gin.HandlerFunc 
 		err := db.Where("username = ? AND enabled = ?", user.Username, true).First(&admin).Error
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			ctx.AbortWithStatusJSON(http.StatusForbidden, v1.ErrorResponse{
-				Code: "eleven_identity_not_provisioned",
+				Code:    "eleven_identity_not_provisioned",
 				Message: "برای این حساب، دسترسی Eleven فعال نشده است.",
 			})
 			return
 		}
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusInternalServerError, v1.ErrorResponse{
-				Code: "identity_lookup_failed",
+				Code:    "identity_lookup_failed",
 				Message: "بررسی دسترسی حساب با خطا مواجه شد.",
 			})
 			return
 		}
 		if !elevenidentity.HasPermission(admin.Role, permission) {
 			ctx.AbortWithStatusJSON(http.StatusForbidden, v1.ErrorResponse{
-				Code: "permission_denied",
+				Code:    "permission_denied",
 				Message: "مجوز لازم برای انجام این کار را ندارید.",
 			})
 			return
@@ -86,51 +86,47 @@ func (c *ElevenController) requirePermission(permission string) gin.HandlerFunc 
 }
 
 func (c *ElevenController) me(ctx *gin.Context) {
-	admin, ok := ctx.Get("eleven_admin")
+	account, ok := c.elevenAdminFromContext(ctx)
 	if !ok {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, v1.ErrorResponse{
-			Code: "identity_context_missing",
-			Message: "اطلاعات هویت حساب در دسترس نیست.",
-		})
-		return
-	}
-	account, ok := admin.(elevenidentity.Admin)
-	if !ok {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, v1.ErrorResponse{
-			Code: "identity_context_invalid",
-			Message: "اطلاعات هویت حساب معتبر نیست.",
-		})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"id": account.ID,
-		"username": account.Username,
+		"id":          account.ID,
+		"username":    account.Username,
 		"displayName": account.DisplayName,
-		"role": account.Role,
-		"ownerId": account.OwnerID,
+		"role":        account.Role,
+		"ownerId":     account.OwnerID,
 		"permissions": elevenidentity.PermissionsForRole(account.Role),
 	})
 }
 
 func (c *ElevenController) permissions(ctx *gin.Context) {
-	admin, ok := ctx.Get("eleven_admin")
+	account, ok := c.elevenAdminFromContext(ctx)
 	if !ok {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, v1.ErrorResponse{
-			Code: "identity_context_missing",
-			Message: "اطلاعات هویت حساب در دسترس نیست.",
-		})
-		return
-	}
-	account, ok := admin.(elevenidentity.Admin)
-	if !ok {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, v1.ErrorResponse{
-			Code: "identity_context_invalid",
-			Message: "اطلاعات هویت حساب معتبر نیست.",
-		})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"role": account.Role,
+		"role":        account.Role,
 		"permissions": elevenidentity.PermissionsForRole(account.Role),
 	})
+}
+
+func (c *ElevenController) elevenAdminFromContext(ctx *gin.Context) (elevenidentity.Admin, bool) {
+	value, ok := ctx.Get("eleven_admin")
+	if !ok {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, v1.ErrorResponse{
+			Code:    "identity_context_missing",
+			Message: "اطلاعات هویت حساب در دسترس نیست.",
+		})
+		return elevenidentity.Admin{}, false
+	}
+	account, ok := value.(elevenidentity.Admin)
+	if !ok {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, v1.ErrorResponse{
+			Code:    "identity_context_invalid",
+			Message: "اطلاعات هویت حساب معتبر نیست.",
+		})
+		return elevenidentity.Admin{}, false
+	}
+	return account, true
 }
