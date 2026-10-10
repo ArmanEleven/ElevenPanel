@@ -75,10 +75,10 @@ func TestElevenResellerCannotReadAdminDirectory(t *testing.T) {
 		t.Fatalf("load logged-in user: %v", err)
 	}
 	admin := elevenidentity.Admin{
-		Username: user.Username,
+		Username:    user.Username,
 		DisplayName: "Test reseller",
-		Role: "reseller",
-		Enabled: true,
+		Role:        "reseller",
+		Enabled:     true,
 	}
 	if err := database.GetDB().Create(&admin).Error; err != nil {
 		t.Fatalf("provision reseller identity: %v", err)
