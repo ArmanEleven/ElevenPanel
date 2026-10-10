@@ -25,6 +25,7 @@ func NewElevenController(g *gin.RouterGroup) *ElevenController {
 	// No role is auto-granted from a Sanaei administrator account.
 	eleven.GET("/me", c.requirePermission("dashboard:read"), c.me)
 	eleven.GET("/permissions", c.requirePermission("dashboard:read"), c.permissions)
+	eleven.GET("/admins", c.requirePermission("admin:read"), c.admins)
 
 	return c
 }
@@ -129,4 +130,23 @@ func (c *ElevenController) elevenAdminFromContext(ctx *gin.Context) (elevenident
 		return elevenidentity.Admin{}, false
 	}
 	return account, true
+}
+
+func (c *ElevenController) admins(ctx *gin.Context) {
+	if database.GetDB() == nil {
+		ctx.AbortWithStatusJSON(http.StatusServiceUnavailable, v1.ErrorResponse{
+			Code:    "identity_store_unavailable",
+			Message: "سرویس احراز هویت موقتاً در دسترس نیست.",
+		})
+		return
+	}
+	var admins []elevenidentity.Admin
+	if err := database.GetDB().Order("id ASC").Limit(100).Find(&admins).Error; err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, v1.ErrorResponse{
+			Code:    "identity_list_failed",
+			Message: "دریافت فهرست مدیران با خطا مواجه شد.",
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"items": admins, "limit": 100})
 }
