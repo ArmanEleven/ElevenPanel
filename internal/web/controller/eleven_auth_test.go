@@ -9,8 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/mhsanaei/3x-ui/v3/internal/database"
-	elevenidentity "github.com/mhsanaei/3x-ui/v3/internal/eleven/identity"
 	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
+	elevenidentity "github.com/mhsanaei/3x-ui/v3/internal/eleven/identity"
 )
 
 func newElevenRBACClient(t *testing.T) (*http.Client, *httptest.Server) {
