@@ -12,6 +12,10 @@ import (
 	"time"
 
 	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
+	elevenaudit "github.com/mhsanaei/3x-ui/v3/internal/eleven/audit"
+	elevenidentity "github.com/mhsanaei/3x-ui/v3/internal/eleven/identity"
+	elevennodes "github.com/mhsanaei/3x-ui/v3/internal/eleven/nodes"
+	elevenservice "github.com/mhsanaei/3x-ui/v3/internal/eleven/service"
 	"github.com/mhsanaei/3x-ui/v3/internal/xray"
 
 	"gorm.io/driver/postgres"
@@ -60,6 +64,15 @@ func migrationModels() []any {
 		&model.OutboundSubscription{},
 		&model.SubBalancer{},
 		&model.TuicTrafficReceipt{},
+		&elevenidentity.Admin{},
+		&elevenidentity.Role{},
+		&elevenidentity.Permission{},
+		&elevenservice.User{},
+		&elevenservice.Group{},
+		&elevenservice.Template{},
+		&elevenservice.Subscription{},
+		&elevennodes.Node{},
+		&elevenaudit.Event{},
 	}
 }
 
