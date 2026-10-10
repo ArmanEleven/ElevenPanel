@@ -102,4 +102,3 @@ func TestElevenResellerCannotReadAdminDirectory(t *testing.T) {
 		t.Fatalf("/admins status = %d, want %d", adminsResp.StatusCode, http.StatusForbidden)
 	}
 }
-
