@@ -1,11 +1,7 @@
 package adapter
 
-// ClientAdapter is the narrow boundary between Eleven service management
-// and the underlying Sanaei/3x-ui client implementation.
-//
-// The concrete implementation will be added after the pinned Sanaei source
-// is vendored into the repository. Keeping this interface small prevents
-// Eleven from duplicating Sanaei's Xray/client logic.
+// ClientAdapter isolates Eleven service management from Sanaei-specific client operations.
+// SanaeiAdapter is the current implementation and keeps protocol logic in the existing core.
 type ClientAdapter interface {
 	ProvisionClient(input ProvisionClientInput) (ClientResult, error)
 	UpdateClient(id string, input UpdateClientInput) (ClientResult, error)
@@ -24,9 +20,9 @@ type ProvisionClientInput struct {
 }
 
 type UpdateClientInput struct {
-	Expiry    *int64
-	TotalGB   *int64
-	Enabled   *bool
+	Expiry  *int64
+	TotalGB *int64
+	Enabled *bool
 }
 
 type ClientResult struct {
@@ -37,13 +33,13 @@ type ClientResult struct {
 }
 
 type TrafficResult struct {
-	UpBytes   int64
-	DownBytes int64
-	Total     int64
+	UpBytes    int64
+	DownBytes  int64
+	LimitBytes int64
 }
 
 type InboundResult struct {
-	ID      string
+	ID       string
 	Protocol string
-	Remark  string
+	Remark   string
 }

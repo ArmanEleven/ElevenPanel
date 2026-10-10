@@ -53,5 +53,7 @@ Initial Eleven metadata belongs in separate `eleven_*` tables. A later migration
 
 - Upstream version pinned: v3.9.0
 - Upstream commit pinned: 3cd4bf504c3cd8ea9b1c1fdb032a9796c5c43ddb
-- Full upstream source vendoring: pending
-- Adapter implementation: next implementation step
+- Full upstream source vendoring: complete
+- Adapter implementation: partial; provisioning, updates, revocation, traffic reads, and inbound lookup use the Sanaei service layer
+- Reconciliation: deliberately returns an explicit not-implemented error until Eleven ownership and node synchronization are defined
+- Eleven Store business API: not implemented beyond the public health endpoint

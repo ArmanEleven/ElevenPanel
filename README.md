@@ -18,9 +18,11 @@ Eleven Panel is **not** a rewrite of Xray management. The existing Sanaei/3x-ui 
 
 ## Status
 
-Phase 0 — architecture and repository bootstrap.
+Phase 1 — pinned Sanaei core and initial Eleven foundation.
 
-The upstream source is intentionally not copied into this empty repository until the exact upstream revision and licensing/attribution requirements are pinned.
+The core is pinned to Sanaei/3x-ui v3.9.0 at commit `3cd4bf5`; see [docs/UPSTREAM.md](docs/UPSTREAM.md). The current Eleven layer contains initial domain models, a versioned health endpoint, and an adapter for basic client provisioning, updates, revocation, inbound lookup, and traffic reads.
+
+This is not yet a complete Eleven Store integration. Persistent Eleven user/group/template/subscription workflows, authenticated business API endpoints, audit-event persistence, and node reconciliation remain future work. The existing Sanaei panel remains the operational core while those capabilities are built and tested.
 
 ## Upstream
 

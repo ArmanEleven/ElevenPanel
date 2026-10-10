@@ -1,0 +1,262 @@
+package adapter
+
+import (
+	"errors"
+	"fmt"
+	"strconv"
+	"strings"
+
+	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
+	"github.com/mhsanaei/3x-ui/v3/internal/web/service"
+	"github.com/mhsanaei/3x-ui/v3/internal/xray"
+
+	"gorm.io/gorm"
+)
+
+type sanaeiCore interface {
+	CreateClient(inboundID int, client model.Client) error
+	ClientByEmail(email string) (*model.ClientRecord, error)
+	ClientByUUID(uuid string) (*model.ClientRecord, error)
+	UpdateClientByEmail(email string, updated model.Client, limitHwid int) error
+	DeleteClientByEmail(email string, keepTraffic bool) error
+	ClientTrafficByEmail(email string) (*xray.ClientTraffic, error)
+	Inbound(id int) (*model.Inbound, error)
+}
+
+type sanaeiServices struct {
+	clientService  *service.ClientService
+	inboundService *service.InboundService
+}
+
+func (s *sanaeiServices) CreateClient(inboundID int, client model.Client) error {
+	_, err := s.clientService.CreateOne(s.inboundService, inboundID, client)
+	return err
+}
+
+func (s *sanaeiServices) ClientByEmail(email string) (*model.ClientRecord, error) {
+	return s.clientService.GetRecordByEmail(nil, email)
+}
+
+func (s *sanaeiServices) ClientByUUID(uuid string) (*model.ClientRecord, error) {
+	return s.clientService.GetRecordByUUID(nil, uuid)
+}
+
+func (s *sanaeiServices) UpdateClientByEmail(email string, updated model.Client, limitHwid int) error {
+	_, err := s.clientService.UpdateByEmail(s.inboundService, email, updated, limitHwid)
+	return err
+}
+
+func (s *sanaeiServices) DeleteClientByEmail(email string, keepTraffic bool) error {
+	_, err := s.clientService.DeleteByEmail(s.inboundService, email, keepTraffic)
+	return err
+}
+
+func (s *sanaeiServices) ClientTrafficByEmail(email string) (*xray.ClientTraffic, error) {
+	return s.inboundService.GetClientTrafficByEmail(email)
+}
+
+func (s *sanaeiServices) Inbound(id int) (*model.Inbound, error) {
+	return s.inboundService.GetInbound(id)
+}
+
+type SanaeiAdapter struct {
+	core sanaeiCore
+}
+
+func NewSanaeiAdapter(
+	clientService *service.ClientService,
+	inboundService *service.InboundService,
+) *SanaeiAdapter {
+	if clientService == nil {
+		clientService = &service.ClientService{}
+	}
+	if inboundService == nil {
+		inboundService = &service.InboundService{}
+	}
+	return &SanaeiAdapter{
+		core: &sanaeiServices{
+			clientService:  clientService,
+			inboundService: inboundService,
+		},
+	}
+}
+
+func splitAllowedIPs(value string) []string {
+	if strings.TrimSpace(value) == "" {
+		return nil
+	}
+	parts := strings.Split(value, ",")
+	result := make([]string, 0, len(parts))
+	for _, part := range parts {
+		if part = strings.TrimSpace(part); part != "" {
+			result = append(result, part)
+		}
+	}
+	return result
+}
+
+func clientIdentifier(record *model.ClientRecord) string {
+	if strings.TrimSpace(record.UUID) != "" {
+		return record.UUID
+	}
+	return record.Email
+}
+
+func (a *SanaeiAdapter) findClientRecord(id string) (*model.ClientRecord, error) {
+	if strings.TrimSpace(id) == "" {
+		return nil, fmt.Errorf("client id is required")
+	}
+	record, err := a.core.ClientByUUID(id)
+	if err == nil {
+		return record, nil
+	}
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, fmt.Errorf("find client by UUID: %w", err)
+	}
+	return a.core.ClientByEmail(id)
+}
+
+func (a *SanaeiAdapter) ProvisionClient(input ProvisionClientInput) (ClientResult, error) {
+	inboundID, err := strconv.Atoi(input.InboundID)
+	if err != nil {
+		return ClientResult{}, fmt.Errorf("invalid inbound id %q: %w", input.InboundID, err)
+	}
+	if inboundID <= 0 {
+		return ClientResult{}, fmt.Errorf("inbound id must be positive")
+	}
+	if strings.TrimSpace(input.Email) == "" {
+		return ClientResult{}, fmt.Errorf("client email is required")
+	}
+	client := model.Client{
+		ID:         input.UUID,
+		Email:      input.Email,
+		ExpiryTime: input.Expiry,
+		TotalGB:    input.TotalGB,
+		Enable:     true,
+	}
+	if err := a.core.CreateClient(inboundID, client); err != nil {
+		return ClientResult{}, fmt.Errorf("provision client: %w", err)
+	}
+	record, err := a.core.ClientByEmail(input.Email)
+	if err != nil {
+		return ClientResult{}, fmt.Errorf("read created client: %w", err)
+	}
+	return ClientResult{
+		ID:        clientIdentifier(record),
+		InboundID: input.InboundID,
+		Email:     record.Email,
+		Enabled:   record.Enable,
+	}, nil
+}
+
+func (a *SanaeiAdapter) UpdateClient(id string, input UpdateClientInput) (ClientResult, error) {
+	record, err := a.findClientRecord(id)
+	if err != nil {
+		return ClientResult{}, fmt.Errorf("find client %q: %w", id, err)
+	}
+	updated := model.Client{
+		ID:              record.UUID,
+		Email:           record.Email,
+		Password:        record.Password,
+		Auth:            record.Auth,
+		Secret:          record.Secret,
+		Flow:            record.Flow,
+		Security:        record.Security,
+		PrivateKey:      record.PrivateKey,
+		PublicKey:       record.PublicKey,
+		AllowedIPs:      splitAllowedIPs(record.AllowedIPs),
+		PreSharedKey:    record.PreSharedKey,
+		LimitIP:         record.LimitIP,
+		TotalGB:         record.TotalGB,
+		ExpiryTime:      record.ExpiryTime,
+		Enable:          record.Enable,
+		TgID:            record.TgID,
+		Group:           record.Group,
+		Comment:         record.Comment,
+		Reset:           record.Reset,
+		ResetDay:        record.ResetDay,
+		ResetWeekday:    record.ResetWeekday,
+		ResetMax:        record.ResetMax,
+		TrafficReset:    record.TrafficReset,
+		TrafficResetDay: record.TrafficResetDay,
+		SubID:           record.SubID,
+	}
+	if input.Expiry != nil {
+		updated.ExpiryTime = *input.Expiry
+	}
+	if input.TotalGB != nil {
+		updated.TotalGB = *input.TotalGB
+	}
+	if input.Enabled != nil {
+		updated.Enable = *input.Enabled
+	}
+	if err := a.core.UpdateClientByEmail(record.Email, updated, record.LimitHwid); err != nil {
+		return ClientResult{}, fmt.Errorf("update client %q: %w", id, err)
+	}
+	result, err := a.core.ClientByEmail(updated.Email)
+	if err != nil {
+		return ClientResult{}, fmt.Errorf("read updated client: %w", err)
+	}
+	return ClientResult{
+		ID:      clientIdentifier(result),
+		Email:   result.Email,
+		Enabled: result.Enable,
+	}, nil
+}
+
+func (a *SanaeiAdapter) RevokeClient(id string) error {
+	record, err := a.findClientRecord(id)
+	if err != nil {
+		return fmt.Errorf("find client %q: %w", id, err)
+	}
+	if err := a.core.DeleteClientByEmail(record.Email, false); err != nil {
+		return fmt.Errorf("revoke client %q: %w", id, err)
+	}
+	return nil
+}
+
+func (a *SanaeiAdapter) GetClientTraffic(id string) (TrafficResult, error) {
+	record, err := a.findClientRecord(id)
+	if err != nil {
+		return TrafficResult{}, fmt.Errorf("find client %q: %w", id, err)
+	}
+	traffic, err := a.core.ClientTrafficByEmail(record.Email)
+	if err != nil {
+		return TrafficResult{}, fmt.Errorf("get traffic for client %q: %w", id, err)
+	}
+	if traffic == nil {
+		return TrafficResult{}, fmt.Errorf("traffic not found for client %q", id)
+	}
+	return TrafficResult{
+		UpBytes:    traffic.Up,
+		DownBytes:  traffic.Down,
+		LimitBytes: traffic.Total,
+	}, nil
+}
+
+func (a *SanaeiAdapter) GetInbound(id string) (InboundResult, error) {
+	inboundID, err := strconv.Atoi(id)
+	if err != nil {
+		return InboundResult{}, fmt.Errorf("invalid inbound id %q: %w", id, err)
+	}
+	if inboundID <= 0 {
+		return InboundResult{}, fmt.Errorf("inbound id must be positive")
+	}
+	inbound, err := a.core.Inbound(inboundID)
+	if err != nil {
+		return InboundResult{}, fmt.Errorf("get inbound %q: %w", id, err)
+	}
+	return InboundResult{
+		ID:       strconv.Itoa(inbound.Id),
+		Protocol: string(inbound.Protocol),
+		Remark:   inbound.Remark,
+	}, nil
+}
+
+var errReconciliationNotImplemented = errors.New("sanaei reconciliation not implemented")
+
+func (a *SanaeiAdapter) Reconcile() error {
+	return errReconciliationNotImplemented
+}
+
+var _ ClientAdapter = (*SanaeiAdapter)(nil)

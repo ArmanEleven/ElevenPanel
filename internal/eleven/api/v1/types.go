@@ -14,7 +14,7 @@ type ProvisionUserRequest struct {
 }
 
 type ProvisionUserResponse struct {
-	UserID        uint64 `json:"userId"`
+	UserID         uint64 `json:"userId"`
 	SubscriptionID uint64 `json:"subscriptionId"`
 }
 
