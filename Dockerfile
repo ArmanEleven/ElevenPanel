@@ -1,4 +1,4 @@
-# ========================================================
+﻿# ========================================================
 # Stage: Frontend (Vite)
 # ========================================================
 FROM --platform=$BUILDPLATFORM node:26-alpine AS frontend
@@ -27,6 +27,7 @@ COPY --from=frontend /src/internal/web/dist ./internal/web/dist
 
 ENV CGO_ENABLED=1
 ENV CGO_CFLAGS="-D_LARGEFILE64_SOURCE"
+ENV GOPROXY=https://goproxy.cn,direct
 RUN go build -ldflags "-w -s" -o build/x-ui main.go
 RUN ./DockerInit.sh "$TARGETARCH"
 
