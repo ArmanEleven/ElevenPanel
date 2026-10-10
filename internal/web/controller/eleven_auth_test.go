@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/http/httptest"
-	"path/filepath"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -104,6 +103,3 @@ func TestElevenResellerCannotReadAdminDirectory(t *testing.T) {
 	}
 }
 
-// Keep the compiler honest about the temporary DB path used by the shared auth
-// test helper; database setup is owned by newAPIAuthTestEngine.
-var _ = filepath.Separator
