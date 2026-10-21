@@ -1,34 +1,45 @@
 # Eleven Panel
 
-Eleven Panel is a next-generation management layer built around the Sanaei/3x-ui codebase.
+**An independent management layer for Xray panel operations — currently in architecture planning.**
 
-## Project direction
+Eleven Panel aims to build Eleven-specific management capabilities around the Sanaei/3X-UI ecosystem without rewriting the existing Xray management foundation.
 
-Eleven Panel is **not** a rewrite of Xray management. The existing Sanaei/3x-ui capabilities remain the foundation. Eleven-specific capabilities are added as a separate layer so upstream functionality can be preserved and maintained.
+> **Status:** Phase 0 — architecture and repository bootstrap. The upstream source has intentionally not been imported while the target revision and licensing requirements are being established. This repository is not a production-ready panel or a drop-in replacement.
 
-### Planned layers
+## Planned architecture
 
-- Core: Sanaei/3x-ui Xray management
-- Identity: admins, roles, permissions
-- Service: users, groups, templates, subscriptions
-- Infrastructure: nodes, health, monitoring
-- Operations: statistics, logs, bulk actions
-- Integration: stable API for Eleven Store
-- Migration: Sanaei/3x-ui data migration and rollback support
+| Layer | Intended responsibility |
+| --- | --- |
+| Core | Sanaei/3X-UI Xray management |
+| Identity | Administrator accounts, roles, and permissions |
+| Services | Users, groups, templates, and subscriptions |
+| Infrastructure | Nodes, health information, and monitoring |
+| Operations | Statistics, logs, and bulk actions |
+| Integration | A stable API for Eleven Store |
+| Migration | Data migration, validation, and rollback |
 
-## Status
+These layers describe the intended direction; they are not a list of shipped features.
 
-Phase 0 — architecture and repository bootstrap.
+## Engineering priorities
 
-The upstream source is intentionally not copied into this empty repository until the exact upstream revision and licensing/attribution requirements are pinned.
+1. Pin and document the intended upstream revision.
+2. Separate upstream functionality from Eleven-specific management logic.
+3. Define identity, permission, and resource ownership boundaries.
+4. Validate API contracts and data models before expanding scope.
+5. Add tests for migrations, authorization, and failure cases.
+6. Document installation and rollback only after those paths are tested.
 
-## Upstream
+## Upstream projects
 
-- https://github.com/MHSanaei/3x-ui
-- https://github.com/PasarGuard/panel
+- [Sanaei 3X-UI](https://github.com/MHSanaei/3x-ui)
+- [PasarGuard Panel](https://github.com/PasarGuard/panel)
 
-## Product name
+The project may evaluate ideas and compatibility requirements from existing software, but that does not imply code has been copied or integrated.
 
-**Eleven Panel**
+## Development approach
 
-Copyright and upstream attribution must be preserved where required by the upstream license.
+A capability should be documented as implemented only when the code exists and its behavior can be verified. Operational changes must account for existing panel data and include a recovery path.
+
+## License and attribution
+
+Before incorporating or redistributing code from an upstream project, review the exact revision's license, copyright notices, and source-distribution requirements. Preserve all notices required by the applicable licenses.
